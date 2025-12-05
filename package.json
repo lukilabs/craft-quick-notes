@@ -15,19 +15,22 @@
       "name": "add-note",
       "title": "Add Note",
       "description": "Add a note to today's or tomorrow's daily note",
-      "mode": "view"
+      "mode": "view",
+      "icon": "extension-icon.png"
     },
     {
       "name": "add-task",
       "title": "Add Task",
       "description": "Add a task to today, tomorrow, or inbox",
-      "mode": "view"
+      "mode": "view",
+      "icon": "extension-icon.png"
     },
     {
       "name": "list-tasks",
       "title": "List Active Tasks",
       "description": "View and complete active tasks",
-      "mode": "view"
+      "mode": "view",
+      "icon": "extension-icon.png"
     }
   ],
   "preferences": [
