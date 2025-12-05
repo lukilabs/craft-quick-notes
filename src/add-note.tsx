@@ -1,13 +1,27 @@
-import { Action, ActionPanel, Form, showToast, Toast, popToRoot } from "@raycast/api";
-import { useState } from "react";
-import { addNote } from "./api";
+import { Action, ActionPanel, Detail, Form, showToast, Toast, popToRoot, openExtensionPreferences } from "@raycast/api";
+import { useState, useEffect } from "react";
+import { addNote, checkConnection } from "./api";
 
 type Destination = "today" | "tomorrow";
 
 export default function AddNoteCommand() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [needsApiKey, setNeedsApiKey] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [destination, setDestination] = useState<Destination>("today");
+
+  useEffect(() => {
+    async function verifyConnection() {
+      const result = await checkConnection();
+      if (!result.success) {
+        setConnectionError(result.error || "Connection failed");
+        setNeedsApiKey(result.requiresAuth);
+      }
+      setIsLoading(false);
+    }
+    verifyConnection();
+  }, []);
 
   async function handleSubmit() {
     if (!noteText.trim()) {
@@ -33,6 +47,23 @@ export default function AddNoteCommand() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (connectionError) {
+    const message = needsApiKey
+      ? `## Connection Failed\n\n${connectionError}\n\nThis API link requires an API key. Please add it in the extension settings.`
+      : `## Connection Failed\n\n${connectionError}\n\nPlease check your Daily Notes API URL in the extension settings.`;
+
+    return (
+      <Detail
+        markdown={message}
+        actions={
+          <ActionPanel>
+            <Action title="Open Extension Settings" onAction={openExtensionPreferences} />
+          </ActionPanel>
+        }
+      />
+    );
   }
 
   return (

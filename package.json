@@ -36,19 +36,19 @@
   "preferences": [
     {
       "name": "apiUrl",
-      "title": "API URL",
-      "description": "Craft Daily Notes API URL (e.g., https://connect.craft.do/links/xxx/api/v1)",
+      "title": "Daily Notes API URL",
+      "description": "Create a Daily Notes API in Craft (Settings → Daily Notes → API) and paste the URL here",
       "type": "textfield",
       "required": true,
       "placeholder": "https://connect.craft.do/links/.../api/v1"
     },
     {
       "name": "apiKey",
-      "title": "API Key",
-      "description": "API key for authenticated endpoints (optional for some links)",
+      "title": "API Key (Optional)",
+      "description": "Only needed if your API link requires authentication. Leave empty if you created a link without API key.",
       "type": "password",
       "required": false,
-      "placeholder": "Enter API key if required"
+      "placeholder": "Leave empty unless required"
     }
   ],
   "dependencies": {

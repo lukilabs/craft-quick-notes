@@ -1,6 +1,16 @@
-import { Action, ActionPanel, List, showToast, Toast, Icon, Color } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  List,
+  Detail,
+  showToast,
+  Toast,
+  Icon,
+  Color,
+  openExtensionPreferences,
+} from "@raycast/api";
 import { useState, useEffect, useCallback } from "react";
-import { getActiveTasks, completeTask, Task } from "./api";
+import { getActiveTasks, completeTask, checkConnection, Task } from "./api";
 
 function cleanTaskMarkdown(markdown: string): string {
   // Remove checkbox syntax and clean up the text
@@ -43,6 +53,8 @@ function getLocationLabel(task: Task): string {
 export default function ListTasksCommand() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [needsApiKey, setNeedsApiKey] = useState(false);
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
@@ -61,7 +73,17 @@ export default function ListTasksCommand() {
   }, []);
 
   useEffect(() => {
-    fetchTasks();
+    async function init() {
+      const result = await checkConnection();
+      if (!result.success) {
+        setConnectionError(result.error || "Connection failed");
+        setNeedsApiKey(result.requiresAuth);
+        setIsLoading(false);
+        return;
+      }
+      fetchTasks();
+    }
+    init();
   }, [fetchTasks]);
 
   async function handleComplete(task: Task) {
@@ -81,6 +103,23 @@ export default function ListTasksCommand() {
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
+  }
+
+  if (connectionError) {
+    const message = needsApiKey
+      ? `## Connection Failed\n\n${connectionError}\n\nThis API link requires an API key. Please add it in the extension settings.`
+      : `## Connection Failed\n\n${connectionError}\n\nPlease check your Daily Notes API URL in the extension settings.`;
+
+    return (
+      <Detail
+        markdown={message}
+        actions={
+          <ActionPanel>
+            <Action title="Open Extension Settings" onAction={openExtensionPreferences} />
+          </ActionPanel>
+        }
+      />
+    );
   }
 
   return (
